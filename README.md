@@ -19,13 +19,28 @@ two-line codec / dynamic range design follow the original.
 
 1. Host this folder: create a public GitHub repo (for example `nuvio-badges`)
    and upload everything in it.
-2. In `nuvio-badges.json`, replace `YOUR-GITHUB-NAME` with your GitHub user
-   name (find and replace, 70 image URLs). If your repo or branch has another
-   name, change `nuvio-badges/main` too.
+2. The image URLs already point at `cyrusir/nuvio-badges` on `main`. If the
+   repo or branch has another name, find and replace `nuvio-badges/main` in
+   `nuvio-badges.json`.
 3. Nuvio: Settings > Streams > Fusion badge URLs (TV: Settings > Layout >
    Streams), paste the raw URL
-   `https://raw.githubusercontent.com/YOUR-GITHUB-NAME/nuvio-badges/main/nuvio-badges.json`
+   `https://raw.githubusercontent.com/cyrusir/nuvio-badges/main/nuvio-badges.json`
    and press Import.
+
+## Two versions
+
+    nuvio-badges.json      original look: codec and HDR badges have a small
+                           caption (H.265 / HEVC, HDR+DV / DUAL, ...)
+    nuvio-badges-tv.json   TV version: those 11 badges are one solid block
+                           with a single large label, easier to read from
+                           the sofa. Uses icons-tv/ for them, icons/ for the rest.
+
+Import whichever you prefer:
+
+    https://raw.githubusercontent.com/cyrusir/nuvio-badges/main/nuvio-badges.json
+    https://raw.githubusercontent.com/cyrusir/nuvio-badges/main/nuvio-badges-tv.json
+
+Nuvio keeps up to three badge URLs, so you can import both and switch.
 
 ## Formatter (optional, for 11 badges)
 
