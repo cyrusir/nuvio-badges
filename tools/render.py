@@ -12,11 +12,11 @@ SRC = Path(sys.argv[1])          # aiostreams-badges checkout
 OUT = Path(sys.argv[2])          # output folder
 OUT.mkdir(parents=True, exist_ok=True)
 
-H = 128                          # final height in px (8 px per dp)
+H = 192                          # final height in px (12 px per dp)
 SS = 4                           # supersampling
 R = H * 6 / 16                   # Nuvio clips the slot at 6dp of 16dp
 MIN_W = H * 34 / 16              # Nuvio's slot is never narrower than 34dp
-BORDER = 6                       # ~0.75dp frame
+BORDER = H // 16                 # 1dp frame: a whole pixel at any density
 FONT_DIR = Path('/usr/share/fonts/opentype/inter')
 
 def font(weight, size):
@@ -64,13 +64,13 @@ def finish(big, path):
     return small
 
 # ---------------------------------------------------------------- text badge
-TEXT_SIZE = 0.50 * H             # Inter SemiBold, about 8dp in the slot
-TEXT_TRACK = 0.02                # em
-PAD = 0.30 * H
+TEXT_SIZE = 0.60 * H             # Inter Bold, about 9.6dp in the slot
+TEXT_TRACK = 0.01                # em
+PAD = 0.24 * H
 CAP = 0.727                      # Inter cap height / em
 
 def text_badge(label, color, border, background, path):
-    f = font('SemiBold', TEXT_SIZE * SS)
+    f = font('Bold', TEXT_SIZE * SS)
     track = TEXT_TRACK * TEXT_SIZE * SS
     tw = tracked_width(label, f, track)
     w = max(round(tw + 2 * PAD * SS), round(MIN_W * SS))  # fill the slot, even gaps
@@ -96,17 +96,28 @@ def two_line_badge(svg_path, path):
     u = H * SS / 41                       # one SVG unit, design is 81 x 41
     w, h = max(round(81 * u), round(MIN_W * SS)), H * SS
     img = Image.new('RGBA', (w, h), (0, 0, 0, 0))
-    # top block, name knocked out
+    # top block, name knocked out (sized up for a 16dp slot)
+    split = 23.5 * u
+    inner = w - 2 * (BORDER * SS + 2.5 * u)
     block = Image.new('RGBA', (w, h), (0, 0, 0, 0))
-    ImageDraw.Draw(block).rectangle((0, 0, w, round(25.375 * u)), fill=rgba(colour))
+    ImageDraw.Draw(block).rectangle((0, 0, w, round(split)), fill=rgba(colour))
+    size, track = 18 * u, 0.1 * u
+    while tracked_width(name, font('Bold', size), track) > inner:
+        size -= 0.25 * u
     knock = Image.new('L', (w, h), 255)
-    draw_text(ImageDraw.Draw(knock), w / 2, 17.71 * u, name,
-              font('Bold', 15 * u), 0, 0.2 * u)
+    draw_text(ImageDraw.Draw(knock), w / 2, split / 2 + CAP * size / 2 + 0.6 * u, name,
+              font('Bold', size), 0, track)
     block.putalpha(Image.composite(block.getchannel('A'), Image.new('L', (w, h), 0), knock))
     img = Image.alpha_composite(img, block)
-    # detail line
+    # detail line, larger and solid so it survives the downscale
+    size, track = 10.5 * u, 0.9 * u
+    while tracked_width(detail, font('Bold', size), track) > inner:
+        track = max(0.3 * u, track - 0.1 * u)
+        if track == 0.3 * u:
+            size -= 0.25 * u
+    lower = (split + 41 * u - BORDER * SS) / 2
     d = ImageDraw.Draw(img)
-    draw_text(d, w / 2, 36.16 * u, detail, font('Medium', 8 * u), rgba(colour, 0.85), 1.8 * u)
+    draw_text(d, w / 2, lower + CAP * size / 2, detail, font('Bold', size), rgba(colour), track)
     img = frame(img, colour, R * SS, BORDER * SS)
     return finish(img, path)
 

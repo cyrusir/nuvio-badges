@@ -14,7 +14,7 @@ from pathlib import Path
 BASE = sys.argv[1].rstrip('/') + '/'      # where icons/ will be hosted
 OUT = Path(sys.argv[2])
 SRC = Path(sys.argv[3])                   # aiostreams-badges checkout
-VERSION = 1
+VERSION = 2
 
 # ------------------------------------------------------------------ markers
 P, A, B, C = '⁠', '​', '‌', '‍'
